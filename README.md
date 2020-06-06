@@ -3,7 +3,7 @@
 這是一個練習使用nodejs、express、express-ws、vuejs與vuetify相關的專案  
 想做一個多人對戰的貪食蛇遊戲
 
-# Update
+## Update
 
 2020/06/06 完成進出遊戲房邏輯，基本的介面排版
 
@@ -22,8 +22,25 @@
 
 ## TODOs
 
+1. 貪食蛇遊戲主邏輯與介面
+2. 頭像選擇或上傳功能
+3. 更多的遊戲模式與積分榜
 
 
 ---
 
 ## Features
+![畫面展示1](public/features/login.png)  
+登入畫面  
+
+![畫面展示2](public/features/layout.png)  
+排版展示  
+
+![畫面展示3](public/features/roomlist.png)  
+遊戲房列表  
+
+![畫面展示4](public/features/room.png)  
+遊戲房
+
+![畫面展示5](public/features/chatroom.png)  
+聊天室  

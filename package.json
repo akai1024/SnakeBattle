@@ -12,6 +12,6 @@
     "express": "^4.17.1",
     "express-ws": "^4.0.0",
     "js-md5": "^0.7.3",
-    "mongoose": "^5.9.17"
+    "mongoose": "^5.9.18"
   }
 }
