@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>SnakeBattle</title>
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+</head>
+
+<body>
+    <div>
+        <v-app id="snakeBattle">
+            <p class="subtitle-2 text-center">
+                Snake Battle
+            </p>
+
+            <!-- 提示視窗 -->
+            <v-dialog v-model="dialog.enable" max-width="290">
+                <v-card>
+                    <v-card-title class="headline">{{ dialog.title }}</v-card-title>
+                    <v-card-text>{{ dialog.content }}</v-card-text>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn color="green darken-1" text @click="dialog.enable = false">
+                            OK
+                        </v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+
+            <!-- 玩家資訊 -->
+            <v-navigation-drawer app permanent v-if="isLogin">
+                <v-card class="mx-auto" outlined>
+                    <v-list-item three-line>
+                        <v-list-item-content>
+                            <div class="overline mb-4">Player Informations</div>
+                            <v-list-item-title class="headline mb-1">{{ player.name }}</v-list-item-title>
+                        </v-list-item-content>
+
+                        <v-list-item-avatar tile size="80" color="grey">
+                            <v-img :src="getHeadImg()"></v-img>
+                        </v-list-item-avatar>
+                    </v-list-item>
+                </v-card>
+            </v-navigation-drawer>
+
+            <v-content>
+                <!-- 登入介面 -->
+                <v-container fluid v-if="!isLogin">
+                    <v-card class="mx-auto" max-width="300">
+                        <v-text-field class="mb-1 pa-3" outlined dense label="PlayerName" v-model="loginName"
+                            :maxlength="16">
+                        </v-text-field>
+                        <v-text-field class="mb-1 pa-3" outlined dense label="Password" :type="'password'"
+                            v-model="loginPwd" :maxlength="16">
+                        </v-text-field>
+                        <v-card-actions>
+                            <v-btn class="ma-auto" @click="getPlayerInfos" width="150" height="50">Login</v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-container>
+                <v-container fluid v-else>
+                    <v-row>
+                        <v-col class="ma-auto pa-auto">
+                            <!-- 遊戲房 -->
+                            <template v-if="isInRoom">
+                                <v-card class="ma-auto pa-auto" max-width="500" max-height="200">
+                                    <v-list-item-title class="ma-3">RoomId: {{ room.id }}</v-list-item-title>
+                                    <v-list-item-subtitle class="ma-3">Host: {{ room.hostName }} </v-list-item-subtitle>
+                                    <v-chip class="ma-3" v-for="player in room.players" color="primary">
+                                        {{ player.name }}
+                                    </v-chip>
+                                    <v-card-actions>
+                                        <v-btn :disabled="!isRoomHost()" @click="">Start</v-btn>
+                                        <v-btn @click="leaveRoom">Leave</v-btn>
+                                    </v-card-actions>
+                                </v-card>
+                            </template>
+                            <!-- 遊戲房列表 -->
+                            <template v-else>
+                                <v-card class="ma-auto pa-auto" width="500">
+                                    <v-btn class="ma-3" @click="getRooms" color="secondary">Refresh Rooms</v-btn>
+                                    <v-list three-line class="mx-auto">
+                                        <!-- 房間列表 -->
+                                        <v-slide-x-transition>
+                                            <template v-for="(room, index) in rooms">
+                                                <v-list-item :key="room.title" @click="joinRoom(room.id)">
+                                                    <v-list-item-avatar>
+                                                        <v-img src="k.png"></v-img>
+                                                    </v-list-item-avatar>
+    
+                                                    <v-list-item-content>
+                                                        <v-list-item-title>{{ room.title }}</v-list-item-title>
+                                                        <v-list-item-subtitle>PlayerSize: {{ room.playerSize }}
+                                                        </v-list-item-subtitle>
+                                                    </v-list-item-content>
+                                                </v-list-item>
+                                            </template>
+                                        </v-slide-x-transition>
+                                        <!-- 建立房間 -->
+                                        <template>
+                                            <v-list-item @click="joinRoom()">
+                                                <v-list-item-content>
+                                                    <v-list-item-subtitle>... Create New Room</v-list-item-subtitle>
+                                                </v-list-item-content>
+                                            </v-list-item>
+                                        </template>
+                                    </v-list>
+                                </v-card>
+                            </template>
+                        </v-col>
+                        <v-col class="ma-auto pa-auto">
+                            <!-- 全頻聊天內容 -->
+                            <template>
+                                <v-card class="ma-auto pa-auto" width="500">
+                                    <v-subheader>Chat Room</v-subheader>
+                                    <v-list dense height="450" max-height="450" class="overflow-y-auto" ref="chatMsgList">
+                                        <!-- 對話內容 -->
+                                        <v-list-item v-for="chatMsg in chatMsgs">
+                                            <v-list-item-avatar>
+                                                <v-img :src="getHeadImg(chatMsg.headImg)"></v-img>
+                                            </v-list-item-avatar>
+                                            <v-list-item-content>
+                                                <v-list-item-title>{{ chatMsg.speaker }} ({{ chatMsg.date }})
+                                                </v-list-item-title>
+                                                <v-list-item-subtitle>{{ chatMsg.content }} </v-list-item-subtitle>
+                                            </v-list-item-content>
+                                        </v-list-item>
+                                    </v-list>
+                                </v-card>
+                                <v-card class="mx-auto" width="500">
+                                    <v-text-field class="mt-5 ml-5 mr-5 pt-5" outlined dense label="ChatMessage"
+                                        v-model="chatMsg" :maxlength="30"></v-text-field>
+                                    <v-card-actions>
+                                        <v-btn class="mx-auto" @click="sendChatMessage()" color="primary">Send</v-btn>
+                                    </v-card-actions>
+                                </v-card>
+                            </template>
+                        </v-col>
+                    </v-row>
+                </v-container>
+            </v-content>
+        </v-app>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+    <script src="js/snakeBattle.js"></script>
+</body>
+
+</html>
