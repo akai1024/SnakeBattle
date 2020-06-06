@@ -1,5 +1,7 @@
 # SnakeBattle
 
+![Cover](public/CoverPic.png)  
+
 這是一個練習使用nodejs、express、express-ws、vuejs與vuetify相關的專案  
 想做一個多人對戰的貪食蛇遊戲
 
