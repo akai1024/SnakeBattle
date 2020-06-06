@@ -1,7 +1,11 @@
 # SnakeBattle
 
 這是一個練習使用nodejs、express、express-ws、vuejs與vuetify相關的專案  
-目前實作了一個多人對戰的貪食蛇
+想做一個多人對戰的貪食蛇遊戲
+
+# Update
+
+2020/06/06 完成進出遊戲房邏輯，基本的介面排版
 
 ---
 
