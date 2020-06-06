@@ -31,6 +31,7 @@
 1. `node main.js` 執行server
 2. 打開瀏覽器瀏覽 `localhost:3000` 就可以看到遊戲畫面
 
+---
 
 ## TODOs
 
