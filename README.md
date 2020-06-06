@@ -9,15 +9,27 @@
 
 ---
 
-## 初始化
+## 安裝
 
-此專案需要安裝nodeJs、mongoDB，在專案目錄下執行下列指令
+此專案需要在運行系統先安裝nodeJs、mongoDB
+
+### 最新插件版本安裝：
+在專案目錄下執行下列指令  
 1. `npm install express --save` 安裝express
 2. `npm install express-ws --save` 安裝express-ws套件(websocket)
 3. `npm install mongoose` 安裝mongoose套件
 3. `npm install js-md5` 安裝md5套件
-4. `node main.js` 執行server
-5. 打開瀏覽器瀏覽 `localhost:3000` 就可以看到遊戲畫面
+
+### 直接使用我的版本安裝(建議)
+在專案目錄下執行下列指令  
+
+    `npm install`
+
+---
+
+## 執行
+1. `node main.js` 執行server
+2. 打開瀏覽器瀏覽 `localhost:3000` 就可以看到遊戲畫面
 
 
 ## TODOs
