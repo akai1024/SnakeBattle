@@ -96,18 +96,20 @@ function getTickTimeGap(battleField) {
 
 // 每次移動計算
 function tick(battleField, updateFrame) {
-    console.log(`BattleField(${battleField.roomId}) tick, isGaming: ${battleField.isGaming}`);
+    // console.log(`BattleField(${battleField.roomId}) tick, isGaming: ${battleField.isGaming}`);
     if (!battleField.isGaming) {
         return;
     }
 
     // 先把所有人的身體加入，等下要用來計算碰撞
-    let allBodys = [];
+    let allBodys = new Map();
     // 計算每位玩家的下一個頭的位置
     let newHeads = [];
     let isReachFood = false;
     // 移除的尾巴
     let removeTails = [];
+    // 當前玩家剩餘數
+    let playerCount = 0;
     battleField.players.forEach((value, key) => {
         if (value.status === STATUS_DEAD) {
             return;
@@ -135,7 +137,8 @@ function tick(battleField, updateFrame) {
         }
 
         // 加入身體
-        allBodys.push(value.body);
+        allBodys.set(key, value.body);
+        playerCount++;
     });
 
     // 判斷是否觸碰到任何人的身體(包括自己)或是邊界，死亡
@@ -143,19 +146,37 @@ function tick(battleField, updateFrame) {
     for (let head of newHeads) {
         let playerName = head.playerName;
         let newHead = head.newHead;
-        for (let body of allBodys) {
-            if (
-                newHead[0] === body[0] && newHead[1] === body[1]
-                ||
-                newHead[0] >= FIELD_WIDTH || newHead[0] < 0
-                ||
-                newHead[1] >= FIELD_HEIGHT || newHead[1] < 0
-            ) {
-                deadPlayers.push(playerName);
-                let player = battleField.players.get(playerName);
-                player.status = STATUS_DEAD;
-                break;
-            }
+        let isDead = false;
+        if (newHead[0] >= FIELD_WIDTH || newHead[0] < 0
+            ||
+            newHead[1] >= FIELD_HEIGHT || newHead[1] < 0) {
+            isDead = true;
+        } else {
+            allBodys.forEach((value, key) => {
+                let bodyBlocks = value;
+                let isFirst = true;
+                for (let body of bodyBlocks) {
+                    // 如果是自己的身體，略過第一格(因為是自己的新頭)
+                    if (isFirst) {
+                        isFirst = false;
+                        if (key === playerName) {
+                            continue;
+                        }
+                    }
+
+                    if (newHead[0] === body[0] && newHead[1] === body[1]) {
+                        isDead = true;
+                        break;
+                    }
+                }
+            });
+        }
+
+        if (isDead) {
+            deadPlayers.push(playerName);
+            let player = battleField.players.get(playerName);
+            player.status = STATUS_DEAD;
+            playerCount--;
         }
     }
 
@@ -168,7 +189,7 @@ function tick(battleField, updateFrame) {
 
     // 最後一人死亡時遊戲結束
     let isGameOver = false;
-    if (newHeads.length === 1 && deadPlayers.length === 1) {
+    if (playerCount === 0) {
         battleField.isGaming = false;
         isGameOver = true;
     }
@@ -186,7 +207,7 @@ function tick(battleField, updateFrame) {
     );
 
     // 設定下一個tick
-    if (!isGameOver) {
+    if (playerCount) {
         setTimeout(tick, getTickTimeGap(battleField), battleField, updateFrame);
     }
 }
@@ -267,7 +288,7 @@ function playerChangeDirection(battleField, playerName, faced) {
     if (player) {
         let orgFaced = player.faced;
         // 與當前面向或是反向相同則無效
-        if (orgFaced === faced || faced === getOppositeDirection(faced)) {
+        if (orgFaced === faced || faced === getOppositeDirection(orgFaced)) {
             return;
         }
         player.nextFaced = faced;

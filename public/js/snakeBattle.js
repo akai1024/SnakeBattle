@@ -413,7 +413,7 @@ var vue = new Vue({
 		startBattleResult(msgData) {
 			// 把場地清空
 			this.drawField();
-			
+
 			if (msgData.isStart) {
 				this.isStartBattle = true;
 				console.log('Battle Start!!!');
@@ -458,10 +458,18 @@ var vue = new Vue({
 		},
 
 		receiveUpdateFrame(msgData) {
+			// 本次frame死亡的玩家
+			let deadPlayers = msgData.deadPlayers;
+
 			// 畫上新的頭
 			let newHeads = msgData.newHeads;
 			for (let head of newHeads) {
 				let playerName = head.playerName;
+				// 不處理死掉的玩家
+				if (deadPlayers && deadPlayers.includes(playerName)) {
+					continue;
+				}
+
 				let newHead = head.newHead;
 				this.drawBlock(newHead[0], newHead[1], TEAM_1_COLOR);// 先用第一隊測試顏色
 			}
@@ -470,6 +478,11 @@ var vue = new Vue({
 			let removeTails = msgData.removeTails;
 			for (let tail of removeTails) {
 				let playerName = tail.playerName;
+				// 不處理死掉的玩家
+				if (deadPlayers && deadPlayers.includes(playerName)) {
+					continue;
+				}
+
 				let removeTail = tail.removeTail;
 				// 畫上場地的顏色
 				this.drawBlock(removeTail[0], removeTail[1], FIELD_COLOR);
