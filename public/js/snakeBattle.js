@@ -461,20 +461,7 @@ var vue = new Vue({
 			// 本次frame死亡的玩家
 			let deadPlayers = msgData.deadPlayers;
 
-			// 畫上新的頭
-			let newHeads = msgData.newHeads;
-			for (let head of newHeads) {
-				let playerName = head.playerName;
-				// 不處理死掉的玩家
-				if (deadPlayers && deadPlayers.includes(playerName)) {
-					continue;
-				}
-
-				let newHead = head.newHead;
-				this.drawBlock(newHead[0], newHead[1], TEAM_1_COLOR);// 先用第一隊測試顏色
-			}
-
-			// 移除尾巴
+			// 先移除尾巴，避免新的頭被擦掉
 			let removeTails = msgData.removeTails;
 			for (let tail of removeTails) {
 				let playerName = tail.playerName;
@@ -486,6 +473,19 @@ var vue = new Vue({
 				let removeTail = tail.removeTail;
 				// 畫上場地的顏色
 				this.drawBlock(removeTail[0], removeTail[1], FIELD_COLOR);
+			}
+
+			// 畫上新的頭
+			let newHeads = msgData.newHeads;
+			for (let head of newHeads) {
+				let playerName = head.playerName;
+				// 不處理死掉的玩家
+				if (deadPlayers && deadPlayers.includes(playerName)) {
+					continue;
+				}
+
+				let newHead = head.newHead;
+				this.drawBlock(newHead[0], newHead[1], TEAM_1_COLOR);// 先用第一隊測試顏色
 			}
 
 			// 畫新的食物
